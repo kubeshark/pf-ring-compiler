@@ -45,9 +45,16 @@ func (c *Compiler) Compile() error {
 	c.logger.Infof("waiting for compile job to start")
 	err = c.WaitForJobStart(jobName, namespace)
 	if err != nil {
-		panic(err.Error())
+		return fmt.Errorf("Compile: %w", err)
 	}
 	c.logger.Infof("compile job started")
+
+	c.logger.Infof("waiting for compile job to complete pf-ring module compilation")
+	err = c.CheckJobLogsForString(jobName, namespace)
+	if err != nil {
+		return fmt.Errorf("Compile: %w", err)
+	}
+	c.logger.Infof("pf-ring module compilation completed")
 
 	return nil
 }

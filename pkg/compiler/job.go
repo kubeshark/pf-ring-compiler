@@ -3,6 +3,8 @@ package compiler
 import (
 	"context"
 	"fmt"
+	"io"
+	"strings"
 	"time"
 
 	batchv1 "k8s.io/api/batch/v1"
@@ -53,6 +55,49 @@ func (c *Compiler) WaitForJobStart(jobName, namespace string) error {
 
 			if job.Status.Active > 0 {
 				return nil
+			}
+		}
+	}
+}
+
+func (c *Compiler) CheckJobLogsForString(jobName, namespace string) error {
+	timeout := time.Minute * 5
+	timeoutChan := time.After(timeout)
+	ticker := time.NewTicker(2 * time.Second)
+	defer ticker.Stop()
+
+	searchString := "Kernel module is ready"
+
+	for {
+		select {
+		case <-timeoutChan:
+			return fmt.Errorf("timeout waiting for string '%s' in job logs", searchString)
+		case <-ticker.C:
+			pods, err := c.clientset.CoreV1().Pods(namespace).List(context.TODO(), metav1.ListOptions{
+				LabelSelector: "job-name=" + jobName,
+			})
+			if err != nil {
+				return err
+			}
+
+			for _, pod := range pods.Items {
+				req := c.clientset.CoreV1().Pods(namespace).GetLogs(pod.Name, &corev1.PodLogOptions{})
+				logs, err := req.Stream(context.TODO())
+				if err != nil {
+					return err
+				}
+				defer logs.Close()
+
+				buf := new(strings.Builder)
+				_, err = io.Copy(buf, logs)
+				if err != nil {
+					return err
+				}
+
+				if strings.Contains(buf.String(), searchString) {
+					fmt.Println(buf.String())
+					return nil
+				}
 			}
 		}
 	}

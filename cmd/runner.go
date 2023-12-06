@@ -61,7 +61,10 @@ func (r *runner) run(ctx context.Context, cmd *cobra.Command, args []string) err
 		}
 	}
 
-	compileRunner.Compile()
+	err = compileRunner.Compile()
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
