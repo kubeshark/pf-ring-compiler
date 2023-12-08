@@ -7,13 +7,13 @@ It is implemented in Go and uses Kubernetes to run the compilation jobs.
 
 The tool is structured into two main packages: `cmd` and `pkg/compiler`.
 
-The `cmd`` package contains the command-line interface (CLI) for the tool. It defines the flags that can be passed to the tool, the runner that executes the main logic, and the main entry point of the application.
+The `cmd` package contains the command-line interface (CLI) for the tool. It defines the flags that can be passed to the tool, the runner that executes the main logic, and the main entry point of the application.
 
 The `pkg/compiler` package contains the logic for creating, monitoring, and cleaning up the Kubernetes jobs that compile the PF_RING kernel module.
 
 # Usage
 
-To use the PF_RING Compiler, you need to run the main application with the `--target`` flag specifying the target for which the PF_RING kernel module should be compiled.
+To use the PF_RING Compiler, you need to run the main application with the `--target` flag specifying the target for which the PF_RING kernel module should be compiled.
 The target in this context is Linux distribution, used in Kubernetes cluster, where Kubeshark is expected to be used.
 The supported targets are:
 - al2 (Amazon Linux 2)
