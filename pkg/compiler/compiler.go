@@ -87,6 +87,14 @@ func (c *Compiler) Compile() error {
 	}
 	c.logger.Infof("compile job started")
 
+	// Wait for job container to start
+	c.logger.Infof("waiting for compile pod to start")
+	err = c.WaitForContainerToStart(jobName, namespace, jobRunId)
+	if err != nil {
+		return fmt.Errorf("Compile: %w", err)
+	}
+	c.logger.Infof("compile pod started")
+
 	// Wait for compiler job to reach completed status
 	c.logger.Infof("waiting for compile job to complete pf-ring module compilation")
 	fileName, err := c.CheckJobLogsForString(jobName, namespace, jobRunId)
