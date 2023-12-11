@@ -11,8 +11,10 @@ spec:
 
       kernelMappings:
         - literal: 5.10.199-190.747.amzn2.x86_64
-          containerImage: corest/build:kubeshark-pf-ring-demo-5.10.198-187.748.amzn2.x86_64-2
+          containerImage: kubehq/pf-ring-module:5.10.198-187.748.amzn2.x86_64
         - literal: 5.10.198-187.748.amzn2.x86_64
-          containerImage: corest/build:kubeshark-pf-ring-demo-5.10.198-187.748.amzn2.x86_64-2
+          containerImage: kubehq/pf-ring-module:5.10.198-187.748.amzn2.x86_64-2
         - literal: 5.14.0-362.8.1.el9_3.x86_64
-          containerImage: corest/build:pf-ring-module-5.14.0-362.8.1.el9_3.x86_64
+          containerImage: kubehq/pf-ring-module:5.14.0-362.8.1.el9_3.x86_64
+        - literal: 5.15.0-1050-aws
+          containerImage: kubehq/pf-ring-module:5.15.0-1050-aws
