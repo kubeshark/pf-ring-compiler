@@ -139,7 +139,9 @@ func copyFileFromPod(podName, namespace, filePath, localPath string) error {
 func getCompileContainerImage(target string) string {
 	// TODO: build containers in Kubeshark docker registry
 	containers := map[string]string{
-		"al2": "corest/build:kubeshark-pf-ring-al2-builder",
+		"al2":         "kubehq/pf-ring-builder:al2",
+		"rhel9":       "kubehq/pf-ring-builder:rhel9",
+		"rockylinux9": "kubehq/pf-ring-builder:rhel9",
 	}
 
 	// TODO: possible missing target

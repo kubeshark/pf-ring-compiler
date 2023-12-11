@@ -1,4 +1,4 @@
-FROM amazonlinux:2.0.20230628.0
+FROM rockylinux:9
 
 RUN yum install -y gcc gcc-c++ make which git wget tar gzip && \
     wget https://github.com/ntop/PF_RING/archive/refs/tags/8.4.0.tar.gz && \
