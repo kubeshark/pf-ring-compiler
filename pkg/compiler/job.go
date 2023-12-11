@@ -70,6 +70,35 @@ func (c *Compiler) WaitForJobStart(jobName, namespace string) error {
 	}
 }
 
+func (c *Compiler) WaitForContainerToStart(jobName, namespace, jobRunId string) error {
+	ticker := time.NewTicker(2 * time.Second)
+	defer ticker.Stop()
+	timeout := time.Minute * 2
+	timeoutChan := time.After(timeout)
+	labelSelector := fmt.Sprintf("job-name=%s,job-run-id=%s", jobName, jobRunId)
+
+	for {
+		select {
+		case <-timeoutChan:
+			return fmt.Errorf("timeout waiting for container in job %s/%s to start",
+				namespace, jobName)
+		case <-ticker.C:
+			pods, err := c.clientset.CoreV1().Pods(namespace).List(context.TODO(), metav1.ListOptions{
+				LabelSelector: labelSelector,
+			})
+			if err != nil {
+				return err
+			}
+
+			for _, pod := range pods.Items {
+				if len(pod.Status.ContainerStatuses) > 0 && pod.Status.ContainerStatuses[0].State.Running != nil {
+					return nil
+				}
+			}
+		}
+	}
+}
+
 func (c *Compiler) CheckJobLogsForString(jobName, namespace, jobRunId string) (string, error) {
 	timeout := time.Minute * 5
 	timeoutChan := time.After(timeout)
