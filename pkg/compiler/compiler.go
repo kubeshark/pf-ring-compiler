@@ -142,6 +142,7 @@ func getCompileContainerImage(target string) string {
 		"al2":         "kubehq/pf-ring-builder:al2",
 		"rhel9":       "kubehq/pf-ring-builder:rhel9",
 		"rockylinux9": "kubehq/pf-ring-builder:rhel9",
+		"ubuntu":      "kubehq/pf-ring-builder:ubuntu",
 	}
 
 	// TODO: possible missing target
