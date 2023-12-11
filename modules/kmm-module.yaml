@@ -18,3 +18,5 @@ spec:
           containerImage: kubehq/pf-ring-module:5.14.0-362.8.1.el9_3.x86_64
         - literal: 5.15.0-1050-aws
           containerImage: kubehq/pf-ring-module:5.15.0-1050-aws
+  selector:
+    kubernetes.io/hostname: ip-192-168-5-169.us-west-2.compute.internal
