@@ -7,6 +7,7 @@ This folder contains ready for KMM usage kernel modules.
 |5.10.198-187.748.amzn2.x86_64|kubehq/pf-ring-module:5.10.198-187.748.amzn2.x86_64|
 |5.10.199-190.747.amzn2.x86_64|kubehq/pf-ring-module:5.10.199-190.747.amzn2.x86_64|
 |5.14.0-362.8.1.el9_3.x86_64|kubehq/pf-ring-module:5.14.0-362.8.1.el9_3.x86_64|
+|5.15.0-1050-aws|kubehq/pf-ring-module:5.15.0-1050-aws|
 
 # usage
 
