@@ -37,7 +37,7 @@ kubectl get modules pf-ring -o json | jq .status.moduleLoader
 
 Where there is module for a new kernel version available, run:
 
-1. Copy PF_RING kernel moduele into `modules` directory with name `pf-ring-<kernel version>.ko``
+1. Copy PF_RING kernel module into `modules` directory with name `pf-ring-<kernel version>.ko``
 
 2. Run build
 
