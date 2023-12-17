@@ -2,7 +2,6 @@ package compatibility
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/sirupsen/logrus"
@@ -39,27 +38,46 @@ func (c *Compatibility) Run() error {
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 
-	c.logger.Infof("creating %s/%s daemonset", namespace, dsName)
+	c.logger.Debugf("creating %s/%s daemonset", namespace, dsName)
 	_, err = c.createUnameDaemonSet(dsName, namespace)
 	if err != nil {
 		return err
 	}
-	c.logger.Infof("daemonset %s/%s created", namespace, dsName)
+	c.logger.Debugf("daemonset %s/%s created", namespace, dsName)
 
-	podNames, err := c.waitForDaemonSetPodsRunning(ctx, dsName, namespace)
+	c.logger.Debugf("waiting for pods in %s/%s daemonset to start", namespace, dsName)
+	pods, err := c.waitForDaemonSetPodsRunning(ctx, dsName, namespace)
+	if err != nil {
+		return err
+	}
+	c.logger.Debugf("all pods in %s/%s daemonset started", namespace, dsName)
+
+	kernelVersions, err := c.getKernelVersions(pods, namespace)
 	if err != nil {
 		return err
 	}
 
-	fmt.Println(podNames)
+	var reportItems []ReportData
+	{
+		for i, kernelVersion := range kernelVersions {
+			isSupported := isSupportedKernelVersion(kernelVersion)
+			reportItems = append(reportItems, ReportData{
+				NodeName:      pods[i].Spec.NodeName,
+				KernelVersion: kernelVersion,
+				IsSupported:   isSupported,
+			})
+		}
+	}
 
-	c.logger.Infof("cleaning up %s/%s daemonset", namespace, dsName)
+	printReportTable(reportItems)
+
+	c.logger.Debugf("cleaning up %s/%s daemonset", namespace, dsName)
 	deleteOptions := metav1.DeleteOptions{}
 	err = c.clientset.AppsV1().DaemonSets(namespace).Delete(context.TODO(), dsName, deleteOptions)
 	if err != nil {
 		return err
 	}
-	c.logger.Infof("daemonset %s/%s cleaned up", namespace, dsName)
+	c.logger.Debugf("daemonset %s/%s cleaned up", namespace, dsName)
 
 	return nil
 }

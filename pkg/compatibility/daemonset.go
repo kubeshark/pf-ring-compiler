@@ -1,8 +1,11 @@
 package compatibility
 
 import (
+	"bytes"
 	"context"
 	"fmt"
+	"io"
+	"strings"
 	"time"
 
 	appsv1 "k8s.io/api/apps/v1"
@@ -50,8 +53,8 @@ func (c *Compatibility) createUnameDaemonSet(dsName, namespace string) (*appsv1.
 	return ds, nil
 }
 
-func (c *Compatibility) waitForDaemonSetPodsRunning(ctx context.Context, dsName, namespace string) ([]string, error) {
-	var podNames []string
+func (c *Compatibility) waitForDaemonSetPodsRunning(ctx context.Context, dsName, namespace string) ([]corev1.Pod, error) {
+	var dsPods []corev1.Pod
 	timeout := 5 * time.Second
 	immediate := true
 
@@ -63,14 +66,13 @@ func (c *Compatibility) waitForDaemonSetPodsRunning(ctx context.Context, dsName,
 			return false, err
 		}
 
-		podNames = make([]string, 0)
 		allRunning := true
 		for _, pod := range pods.Items {
 			if pod.Status.Phase != corev1.PodRunning {
 				allRunning = false
 				break
 			}
-			podNames = append(podNames, pod.Name)
+			dsPods = append(dsPods, pod)
 		}
 
 		return allRunning, nil
@@ -79,5 +81,28 @@ func (c *Compatibility) waitForDaemonSetPodsRunning(ctx context.Context, dsName,
 	if err != nil {
 		return nil, err
 	}
-	return podNames, nil
+	return dsPods, nil
+}
+
+func (c *Compatibility) getKernelVersions(pods []corev1.Pod, namespace string) ([]string, error) {
+	var logs []string
+	for _, pod := range pods {
+		podLogOpts := corev1.PodLogOptions{}
+		req := c.clientset.CoreV1().Pods(namespace).GetLogs(pod.Name, &podLogOpts)
+		podLogs, err := req.Stream(context.TODO())
+		if err != nil {
+			return nil, err
+		}
+		defer podLogs.Close()
+
+		buf := new(bytes.Buffer)
+		_, err = io.Copy(buf, podLogs)
+		if err != nil {
+			return nil, err
+		}
+
+		log := strings.TrimRight(buf.String(), "\r\n")
+		logs = append(logs, log)
+	}
+	return logs, nil
 }
