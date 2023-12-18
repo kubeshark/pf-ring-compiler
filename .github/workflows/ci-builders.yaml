@@ -1,0 +1,47 @@
+name: Build and Push PF_RING builder docker images
+
+on:
+  workflow_dispatch:
+
+jobs:
+  prepare-matrix:
+    runs-on: ubuntu-latest
+    outputs:
+      builders: ${{ steps.set-matrix.outputs.builders }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Prepare list of builders
+        id: set-matrix
+        run: |
+          echo "Listing builders..."
+          builders=$(find builders -mindepth 1 -maxdepth 1 -type d -exec basename {} \; | jq -R -s -c 'split("\n")[:-1]')
+          echo "builders=${builders}" >> $GITHUB_OUTPUT
+
+  build-and-push:
+    needs: prepare-matrix
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        builder: ${{ fromJson(needs.prepare-matrix.outputs.builders) }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v5
+        with:
+          context: ./builders/${{ matrix.builder }}
+          file: ./builders/${{ matrix.builder }}/Dockerfile
+          push: true
+          tags: kubeshark/pf-ring-builder:${{ matrix.builder }}
