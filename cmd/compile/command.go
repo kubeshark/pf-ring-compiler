@@ -1,4 +1,4 @@
-package cmd
+package compile
 
 import (
 	"fmt"
@@ -10,8 +10,8 @@ import (
 )
 
 const (
-	name        = "pfring-compiler"
-	description = "compiler pf_ring kernel module"
+	name        = "compile"
+	description = "compile pf_ring kernel module"
 )
 
 type Config struct {
