@@ -5,11 +5,11 @@ It is implemented in Go and uses Kubernetes to run the compilation jobs.
 
 # Overview
 
-The tool is structured into two main packages: `cmd` and `pkg/compiler`.
+The tool is structured into three main packages: `cmd`, `pkg/compiler`, and `pkg/compatibility`.
 
-The `cmd` package contains the command-line interface (CLI) for the tool. It defines the flags that can be passed to the tool, the runner that executes the main logic, and the main entry point of the application.
-
+The `cmd` package contains the command-line interface (CLI) for the tool. It defines the flags that can be passed to the tool, the runner that executes the main logic, and the main entry point of the application. The `cmd` package has been refactored to include two subcommands: `compile` and `compatibility`.
 The `pkg/compiler` package contains the logic for creating, monitoring, and cleaning up the Kubernetes jobs that compile the PF_RING kernel module.
+The `pkg/compatibility` package contains the logic for checking if there are PF_RING kernel modules for cluster nodes.
 
 # Usage
 
@@ -17,12 +17,13 @@ To use the PF_RING Compiler, you need to run the main application with the `--ta
 The target in this context is Linux distribution, used in Kubernetes cluster, where Kubeshark is expected to be used.
 The supported targets are:
 - al2 (Amazon Linux 2)
-- ...
+- rhel9 (Red Hat 9)
+- ubuntu (Ubuntu)
 
 Here is an example of how to run the tool:
 
 ```bash
-./pfring-compiler --target al2
+./pfring-compiler compile --target al2
 ```
 
 # Build containers
@@ -37,7 +38,9 @@ The function uses a map to associate each supported target with its correspondin
 
 | Target | Docker Image |
 |--------|--------------|
-| al2 | coreset/build:kubeshark-pf-ring-al2-builder |
+| al2 | kubeshark/pf-ring-builder:al2 |
+| rhel9 | kubeshark/pf-ring-builder:rhel9 |
+| ubuntu | kubeshark/pf-ring-builder:ubuntu |
 
 Build containers Dockerfiles are defined in `builders` folder.
 
@@ -63,7 +66,7 @@ These 3 lines:
 - set predictable log line to determine the end of the build process
 - give enough time for CLI to copy kernel module from pod to the local file system
 
-After build container is ready:
+After Dockerfile is ready:
 1. Build container
 2. Push into container registry
 3. Add new target-to-container mapping into `getCompileContainerImage` function in the `pkg/compiler/compiler.go` file.
