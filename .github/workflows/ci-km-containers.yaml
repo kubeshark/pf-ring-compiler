@@ -1,4 +1,4 @@
-name: Build and Push PF_RING module docker images
+name: Build and Push PF_RING modules
 
 on:
   workflow_dispatch:
@@ -25,7 +25,7 @@ jobs:
           versions_json=$(echo "${versions[@]}" | tr -d '\n' | jq -R -s -c 'split(" ")')
           echo "versions=${versions_json}" >> $GITHUB_OUTPUT
 
-  build-and-push:
+  build-and-push-container:
     needs: prepare-matrix
     runs-on: ubuntu-latest
     strategy:
@@ -53,3 +53,34 @@ jobs:
           tags: kubeshark/pf-ring-module:${{ matrix.version }}
           build-args: |
             KERNEL_VERSION=${{ matrix.version }}
+
+  upload-modules-to-s3:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1-node16
+        with:
+          role-to-assume: ${{ secrets.AWS_ASSUME_ROLE_ARN }}
+          role-session-name: buildsession
+          aws-region: us-east-2
+
+      - name: Copy kernel modules
+        run: |
+          versions=();
+          for f in $(ls modules/*.ko); do
+            version=$(echo $f | sed -E 's/.*pf-ring-(.*)\.ko/\1/');
+            aws s3 cp $f ${{ secrets.AWS_PF_RING_BUCKET }}/${version}/pf_ring.ko
+            versions+=("$version")
+          done
+
+          versions_json=$(echo "${versions[@]}" | tr -d '\n' | jq -R -s -c 'split(" ")')
+
+          echo "Copy versions metadata"
+          echo ${versions_json} > versions.json
+          aws s3 cp versions.json ${{ secrets.AWS_PF_RING_BUCKET }}/meta/versions.json
