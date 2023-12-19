@@ -80,5 +80,5 @@ jobs:
           done
 
           echo "Copy versions metadata"
-          echo ${{ needs.prepare-matrix.outputs.versions }} > versions.json
+          echo ${{ fromJson(needs.prepare-matrix.outputs.versions) }} > versions.json
           aws s3 cp versions.json ${{ secrets.AWS_PF_RING_BUCKET }}/versions.json
