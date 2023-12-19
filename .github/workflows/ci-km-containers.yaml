@@ -55,7 +55,6 @@ jobs:
             KERNEL_VERSION=${{ matrix.version }}
 
   upload-modules-to-s3:
-    needs: prepare-matrix
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -74,11 +73,15 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_DEFAULT_REGION: us-east-2
         run: |
+          versions=();
           for f in $(ls modules/*.ko); do
             version=$(echo $f | sed -E 's/.*pf-ring-(.*)\.ko/\1/');
             aws s3 cp $f ${{ secrets.AWS_PF_RING_BUCKET }}/${version}/pf_ring.ko
+            versions+=("$version")
           done
 
+          versions_json=$(echo "${versions[@]}" | tr -d '\n' | jq -R -s -c 'split(" ")')
+
           echo "Copy versions metadata"
-          echo ${{ fromJson(needs.prepare-matrix.outputs.versions) }} > versions.json
+          echo ${versions_json} > versions.json
           aws s3 cp versions.json ${{ secrets.AWS_PF_RING_BUCKET }}/versions.json
