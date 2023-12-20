@@ -1,8 +1,17 @@
 package compatibility
 
 import (
+	"encoding/json"
+	"fmt"
+	"io"
+	"net/http"
+
 	"github.com/fatih/color"
 	"github.com/rodaine/table"
+)
+
+const (
+	SUPPORTED_KERNELS_ENDPOINT = "https://api.kubeshark.co/kernel-modules/meta/versions.json"
 )
 
 type ReportData struct {
@@ -11,22 +20,30 @@ type ReportData struct {
 	IsSupported   bool
 }
 
-func isSupportedKernelVersion(kernelVersion string) bool {
-	// TODO: retrieve this from some external system?
-	supportedKernelVersions := []string{
-		"5.10.198-187.748.amzn2.x86_64",
-		"5.10.199-190.747.amzn2.x86_64",
-		"5.14.0-362.8.1.el9_3.x86_64",
-		"5.15.0-1050-aws",
+func isSupportedKernelVersion(kernelVersion string) (bool, error) {
+	resp, err := http.Get(SUPPORTED_KERNELS_ENDPOINT)
+	if err != nil {
+		return false, fmt.Errorf("error making GET request: %w", err)
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return false, fmt.Errorf("error reading response body: %w", err)
+	}
+
+	var supportedKernelVersions []string
+	if err := json.Unmarshal(body, &supportedKernelVersions); err != nil {
+		return false, fmt.Errorf("error unmarshaling response: %w", err)
 	}
 
 	for _, supportedKernelVersion := range supportedKernelVersions {
 		if supportedKernelVersion == kernelVersion {
-			return true
+			return true, nil
 		}
 	}
 
-	return false
+	return false, nil
 }
 
 func printReportTable(items []ReportData) {

@@ -60,7 +60,10 @@ func (c *Compatibility) Run() error {
 	var reportItems []ReportData
 	{
 		for i, kernelVersion := range kernelVersions {
-			isSupported := isSupportedKernelVersion(kernelVersion)
+			isSupported, err := isSupportedKernelVersion(kernelVersion)
+			if err != nil {
+				return err
+			}
 			reportItems = append(reportItems, ReportData{
 				NodeName:      pods[i].Spec.NodeName,
 				KernelVersion: kernelVersion,
