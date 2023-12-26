@@ -2,6 +2,7 @@ package compatibility
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/sirupsen/logrus"
@@ -34,19 +35,20 @@ func (c *Compatibility) Run() error {
 	dsName := "kubeshark-kernel-version"
 	namespace := "default"
 	timeout := 2 * time.Minute
+	jobRunId := fmt.Sprintf("job-run-%d", time.Now().Unix())
 
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 
 	c.logger.Debugf("creating %s/%s daemonset", namespace, dsName)
-	_, err = c.createUnameDaemonSet(dsName, namespace)
+	_, err = c.createUnameDaemonSet(dsName, namespace, jobRunId)
 	if err != nil {
 		return err
 	}
 	c.logger.Debugf("daemonset %s/%s created", namespace, dsName)
 
 	c.logger.Debugf("waiting for pods in %s/%s daemonset to start", namespace, dsName)
-	pods, err := c.waitForDaemonSetPodsRunning(ctx, dsName, namespace)
+	pods, err := c.waitForDaemonSetPodsRunning(ctx, dsName, namespace, jobRunId)
 	if err != nil {
 		return err
 	}

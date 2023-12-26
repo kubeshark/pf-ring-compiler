@@ -14,22 +14,27 @@ import (
 	"k8s.io/apimachinery/pkg/util/wait"
 )
 
-func (c *Compatibility) createUnameDaemonSet(dsName, namespace string) (*appsv1.DaemonSet, error) {
+func (c *Compatibility) createUnameDaemonSet(dsName, namespace, jobRunId string) (*appsv1.DaemonSet, error) {
 	ds := &appsv1.DaemonSet{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      dsName,
 			Namespace: namespace,
+			Labels: map[string]string{
+				"job-run-id": jobRunId,
+			},
 		},
 		Spec: appsv1.DaemonSetSpec{
 			Selector: &metav1.LabelSelector{
 				MatchLabels: map[string]string{
-					"app": dsName,
+					"app":        dsName,
+					"job-run-id": jobRunId,
 				},
 			},
 			Template: corev1.PodTemplateSpec{
 				ObjectMeta: metav1.ObjectMeta{
 					Labels: map[string]string{
-						"app": dsName,
+						"app":        dsName,
+						"job-run-id": jobRunId,
 					},
 				},
 				Spec: corev1.PodSpec{
@@ -53,14 +58,15 @@ func (c *Compatibility) createUnameDaemonSet(dsName, namespace string) (*appsv1.
 	return ds, nil
 }
 
-func (c *Compatibility) waitForDaemonSetPodsRunning(ctx context.Context, dsName, namespace string) ([]corev1.Pod, error) {
+func (c *Compatibility) waitForDaemonSetPodsRunning(ctx context.Context, dsName, namespace, jobRunId string) ([]corev1.Pod, error) {
 	var dsPods []corev1.Pod
 	timeout := 5 * time.Second
 	immediate := true
+	labelSelector := fmt.Sprintf("app=%s,job-run-id=%s", dsName, jobRunId)
 
 	err := wait.PollUntilContextCancel(ctx, timeout, immediate, func(ctx context.Context) (bool, error) {
 		pods, err := c.clientset.CoreV1().Pods("").List(ctx, metav1.ListOptions{
-			LabelSelector: "app=" + dsName,
+			LabelSelector: labelSelector,
 		})
 		if err != nil {
 			return false, err
