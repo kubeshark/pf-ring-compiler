@@ -69,13 +69,22 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images: kubeshark/pf-ring-module
+          tags: |
+            type=raw,value={{date 'YYYYMMDD'}}
+            type=raw,value=all
+
       - name: Build and push
         uses: docker/build-push-action@v5
         with:
           context: ./modules
           file: ./modules/Dockerfile.all
           push: true
-          tags: kubeshark/pf-ring-module:all
+          tags: ${{ steps.meta.outputs.tags }}
 
   upload-modules-to-s3:
     runs-on: ubuntu-latest
