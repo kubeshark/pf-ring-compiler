@@ -1,7 +1,9 @@
 # Build container with all available modules
 FROM alpine:3.18
 
-COPY *.ko /tmp/modules/
+COPY ko/*.ko /tmp/modules/
 COPY load-all-modules.sh /opt/load-all-modules.sh
+COPY entrypoint-all.sh /opt/entrypoint.sh
 
 RUN /opt/load-all-modules.sh
+ENTRYPOINT [ "/opt/entrypoint.sh" ]

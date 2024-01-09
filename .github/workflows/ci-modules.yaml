@@ -105,7 +105,7 @@ jobs:
       - name: Copy kernel modules
         run: |
           versions=();
-          for f in $(ls modules/*.ko); do
+          for f in $(ls modules/ko/*.ko); do
             version=$(echo $f | sed -E 's/.*pf-ring-(.*)\.ko/\1/');
             aws s3 cp $f ${{ secrets.AWS_PF_RING_BUCKET }}/${version}/pf_ring.ko
             versions+=("$version")
