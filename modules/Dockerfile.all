@@ -1,0 +1,7 @@
+# Build container with all available modules
+FROM alpine:3.18
+
+COPY *.ko /tmp/modules/
+COPY load-all-modules.sh /opt/load-all-modules.sh
+
+RUN /opt/load-all-modules.sh

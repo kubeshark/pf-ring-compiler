@@ -1,3 +1,4 @@
+# Build container with single module file per specific version
 FROM alpine:3.18
 ARG KERNEL_VERSION
 
