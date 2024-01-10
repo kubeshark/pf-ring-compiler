@@ -1,50 +1,31 @@
 # modules
 
-This folder contains ready for KMM usage kernel modules.
+Folder structure:
 
-| Kernel version | Container |
-|----------------|-----------|
-|5.10.198-187.748.amzn2.x86_64|kubehq/pf-ring-module:5.10.198-187.748.amzn2.x86_64|
-|5.10.199-190.747.amzn2.x86_64|kubehq/pf-ring-module:5.10.199-190.747.amzn2.x86_64|
-|5.14.0-362.8.1.el9_3.x86_64|kubehq/pf-ring-module:5.14.0-362.8.1.el9_3.x86_64|
-|5.15.0-1050-aws|kubehq/pf-ring-module:5.15.0-1050-aws|
+- `ko/` - contains all available `pf_ring.ko` built by Kubeshark for different kernel versions
+- `scripts/` - contains scripts used to build container with all modules in `ko` folder
+- `Dockerfile.all` - Dockerfile for building container with all modules in `ko` folder
+- `Dockerfile.single` - Dockerfile for building container with `pf_ring.ko` for selected kernel version.
 
-# usage
+## Build
 
-To load kernel module on the nodes, we're using [Kernel Module Management](https://kmm.sigs.k8s.io/).
+### Container with all available modules
 
-1. Install KMM
-
-Follow [instructions](https://kmm.sigs.k8s.io/documentation/install/)
-
-2. Create Module custom resource via [kmm-module](kmm-module.yaml)
-
-```
-kubectl apply -f kmm-module.yaml
+```bash
+docker build -t kubeshark/pf-ring-module:all -f Dockerfile.all
 ```
 
-If your nodes are running supported Kernel version, the expected status of the Module CR is:
-```
-kubectl get modules pf-ring -o json | jq .status.moduleLoader
-{
-  "availableNumber": 1,
-  "desiredNumber": 1,
-  "nodesMatchingSelectorNumber": 1
-}
-```
+### Container for specific PF_RING kernel version
 
-# build
+This requires target kernel module to exist at `ko/pf-ring-<kernel-version>.ko`.
 
-Where there is module for a new kernel version available, run:
-
-1. Copy PF_RING kernel module into `modules` directory with name `pf-ring-<kernel version>.ko``
-
-2. Run build
-
-```
-KERNEL_VERSION=<new kernel version>
-docker build --build-arg KERNEL_VERSION=${KERNEL_VERSION} -t kubehq/pf-ring-module:${KERNEL_VERSION} .
-docker push kubehq/pf-ring-module:${KERNEL_VERSION}
+```bash
+kernel_version=5.15.0-1050-aws # example
+docker build --build-arg KERNEL_VERSION=${kernel_version} -t kubeshark/pf-ring-module:${kernel_version}  -f Dockerfile.single
 ```
 
-3. Update the table with supported kernel versions
+## Usage
+
+Kubeshark maintains `kubeshark/pf-ring-module:all` and `kubeshark/pf-ring-module:${kernel_version}` containers with modules available under `ko`.
+These containers are used in Kubeshark Helm chart.
+Pleare refer to [Documentation](https://github.com/kubeshark/kubeshark/tree/master/helm-chart) for more details.
