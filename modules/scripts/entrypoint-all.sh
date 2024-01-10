@@ -17,5 +17,5 @@ if [ -f "$module_path" ]; then
     fi
 else
     echo "No pf_ring module found for the current kernel version ${current_kernel_version}"
-    exit 1
+    echo "Falling back to libpcap"
 fi

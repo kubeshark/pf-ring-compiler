@@ -2,8 +2,8 @@
 FROM alpine:3.18
 
 COPY ko/*.ko /tmp/modules/
-COPY load-all-modules.sh /opt/load-all-modules.sh
-COPY entrypoint-all.sh /opt/entrypoint.sh
+COPY scripts/load-all-modules.sh /opt/scripts/load-all-modules.sh
+COPY scripts/entrypoint-all.sh /opt/scripts/entrypoint.sh
 
-RUN /opt/load-all-modules.sh
-ENTRYPOINT [ "/opt/entrypoint.sh" ]
+RUN /opt/scripts/load-all-modules.sh
+ENTRYPOINT [ "/opt/scripts/entrypoint.sh" ]
