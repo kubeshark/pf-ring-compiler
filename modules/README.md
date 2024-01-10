@@ -28,4 +28,4 @@ docker build --build-arg KERNEL_VERSION=${kernel_version} -t kubeshark/pf-ring-m
 
 Kubeshark maintains `kubeshark/pf-ring-module:all` and `kubeshark/pf-ring-module:${kernel_version}` containers with modules available under `ko`.
 These containers are used in Kubeshark Helm chart.
-Pleare refer to [Documentation](https://github.com/kubeshark/kubeshark/tree/master/helm-chart) for more details.
+Please refer to [Documentation](https://github.com/kubeshark/kubeshark/tree/master/helm-chart) for more details.
