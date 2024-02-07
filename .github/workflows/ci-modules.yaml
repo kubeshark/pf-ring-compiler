@@ -11,7 +11,7 @@ on:
           - canary
       per-module:
         type: boolean
-        description: "Build and push a container per module"
+        description: "Build container per module"
         default: true
 
 jobs:
