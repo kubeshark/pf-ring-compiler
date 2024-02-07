@@ -100,7 +100,7 @@ jobs:
           file: ./modules/Dockerfile.all
           push: true
           tags: ${{ steps.meta.outputs.tags }}
-          platforms: linux/amd64,linux/arm64,darwin/amd64,darwin/arm64
+          platforms: linux/amd64,linux/arm64
 
   upload-modules-to-s3:
     runs-on: ubuntu-latest
