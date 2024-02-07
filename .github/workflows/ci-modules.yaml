@@ -16,6 +16,7 @@ on:
 
 jobs:
   prepare-matrix:
+    if: inputs.per-module == 'true'
     runs-on: ubuntu-latest
     outputs:
       versions: ${{ steps.set-matrix.outputs.versions }}
@@ -37,7 +38,6 @@ jobs:
           echo "versions=${versions_json}" >> $GITHUB_OUTPUT
 
   build-and-push-container-per-module:
-    if: inputs.per-module == 'true'
     needs: prepare-matrix
     runs-on: ubuntu-latest
     strategy:

@@ -1,5 +1,5 @@
 # Build container with all available modules
-FROM debian:bookworm-slim
+FROM alpine:3.18
 
 COPY ko/*.ko /tmp/modules/
 COPY scripts/load-all-modules.sh /opt/scripts/load-all-modules.sh
