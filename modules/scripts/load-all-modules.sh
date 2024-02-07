@@ -1,6 +1,7 @@
 #!/bin/sh
 
-apk add kmod
+apt update
+apt install kmod -y
 
 for f in $(ls /tmp/modules/*.ko); do
     kernel_version=$(echo $f | sed -E 's/.*pf-ring-(.*)\.ko/\1/');
