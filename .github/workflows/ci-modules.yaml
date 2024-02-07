@@ -2,6 +2,13 @@ name: Build and Push PF_RING modules
 
 on:
   workflow_dispatch:
+    inputs:
+      tag:
+        type: choice
+        description: "Tag to build"
+        options:
+          - all
+          - canary
 
 jobs:
   prepare-matrix:
@@ -76,7 +83,7 @@ jobs:
           images: kubeshark/pf-ring-module
           tags: |
             type=raw,value={{date 'YYYYMMDD'}}
-            type=raw,value=all
+            type=raw,value=${{ inputs.tag}}
 
       - name: Build and push
         uses: docker/build-push-action@v5
