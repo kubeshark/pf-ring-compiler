@@ -9,6 +9,10 @@ on:
         options:
           - all
           - canary
+      per-module:
+        type: boolean
+        description: "Build and push a container per module"
+        default: true
 
 jobs:
   prepare-matrix:
@@ -33,6 +37,7 @@ jobs:
           echo "versions=${versions_json}" >> $GITHUB_OUTPUT
 
   build-and-push-container-per-module:
+    if: inputs.per-module == 'true'
     needs: prepare-matrix
     runs-on: ubuntu-latest
     strategy:
