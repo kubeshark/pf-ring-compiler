@@ -10,7 +10,7 @@ if [ -f "$module_path" ]; then
     # Check if the module is already loaded
     if ! lsmod | grep -q pf_ring; then
         echo "Loading pf_ring module for kernel ${kernel_version}"
-        module_load_path="/opt/lib/modules/pf-ring-${kernel_version}.ko"
+        module_load_path="/opt/lib/modules/${kernel_version}/pf_ring.ko"
         mkdir /opt/lib/modules/${kernel_version} -p
         cp $module_path ${module_load_path}
         depmod -b /opt ${kernel_version}
@@ -20,6 +20,7 @@ if [ -f "$module_path" ]; then
             echo "Falling back to AF_PACKET"
             exit 0
         fi
+        echo "pf_ring module loaded for kernel ${kernel_version}"
     else
         echo "pf_ring module is already loaded for kernel ${kernel_version}"
         exit 0
