@@ -2,9 +2,8 @@
 FROM alpine:3.18
 ARG KERNEL_VERSION
 
-COPY ko/pf-ring-${KERNEL_VERSION}.ko /opt/lib/modules/${KERNEL_VERSION}/pf_ring.ko
+COPY ko/pf-ring-${KERNEL_VERSION}.ko /opt/modules/pf-ring-${KERNEL_VERSION}.ko
 COPY scripts/entrypoint.sh /opt/scripts/entrypoint.sh
 RUN apk add kmod
 
-RUN depmod -b /opt ${KERNEL_VERSION}
 ENTRYPOINT [ "/opt/scripts/entrypoint.sh" ]
