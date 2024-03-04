@@ -31,7 +31,7 @@ func (f *flag) Validate() error {
 	if f.Target == "" {
 		return fmt.Errorf("--%s can't be empty", flagTarget)
 	}
-	supportedTargets := []string{"al2", "rhel9", "rockylinux9", "ubuntu"}
+	supportedTargets := []string{"al2", "rhel9", "rockylinux9", "ubuntu", "oraclelinux9"}
 	if !contains(supportedTargets, f.Target) {
 		return fmt.Errorf("supported targets: %v, got: %s", supportedTargets, f.Target)
 	}
