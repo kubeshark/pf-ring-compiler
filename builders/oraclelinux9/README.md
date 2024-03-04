@@ -6,6 +6,6 @@ It is based on `oraclielinux:9` container image.
 # build
 
 ```
-docker build -t kubehq/pf-ring-builder:oraclilinux9 .
+docker build -t kubehq/pf-ring-builder:oraclelinux9 .
 docker push kubehq/pf-ring-builder:oraclelinux9
 ```
