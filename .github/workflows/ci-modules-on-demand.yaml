@@ -1,6 +1,7 @@
-name: Build and Push PF_RING modules
+name: Build and Push PF_RING modules on demand
 
 on:
+  push:
   workflow_dispatch:
     inputs:
       tag:
